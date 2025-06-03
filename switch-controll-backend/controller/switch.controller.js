@@ -2,14 +2,13 @@ import Switch from "../models/switch.model.js";
 import Activity from "../models/activity.model.js";
 import mqtt from "mqtt";
 import switchUser from "../models/user.model.js";
-import "dotenv/config";
 
 const options = {
-  host: "16e43abbd885424baf2d25eba3b63656.s1.eu.hivemq.cloud",
-  port: 8883,
-  protocol: "mqtts",
-  username: "hivemq.webclient.1747369072656",
-  password: "pxCnV76@a*$P9m.K3GLo",
+  host: process.env.HOST,
+  port: Number(process.env.MQTT_PORT),
+  protocol: process.env.PROTOCOL,
+  username: process.env.MQTT_USERNAME,
+  password: process.env.PASSWORD,
 };
 
 const mqttServer = mqtt.connect(options);
