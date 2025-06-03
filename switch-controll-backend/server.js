@@ -14,11 +14,7 @@ const server = http.createServer(app);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cors({
-    origin: "https://switch-controll-arghya.netlify.app",
-  })
-);
+app.use(cors());
 conn();
 
 app.use("/api", switchRouter);

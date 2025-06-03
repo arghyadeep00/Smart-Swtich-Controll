@@ -2,6 +2,7 @@ import Switch from "../models/switch.model.js";
 import Activity from "../models/activity.model.js";
 import mqtt from "mqtt";
 import switchUser from "../models/user.model.js";
+import "dotenv/config";
 
 const options = {
   host: "16e43abbd885424baf2d25eba3b63656.s1.eu.hivemq.cloud",
