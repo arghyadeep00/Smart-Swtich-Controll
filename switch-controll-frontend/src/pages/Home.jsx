@@ -2,10 +2,10 @@ import React, { useEffect, useState, useContext } from "react";
 import Gauge from "../components/Gauge";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { StoreContext, deviceStatus } from "../context/StoreContext";
+import { StoreContext } from "../context/StoreContext";
 
 const Home = () => {
-  const { backendUrl } = useContext(StoreContext);
+  const { backendUrl, deviceStatus } = useContext(StoreContext);
   const [switches, setSwitches] = useState([]);
 
   useEffect(() => {
@@ -35,7 +35,35 @@ const Home = () => {
     }
   }, [backendUrl]);
 
+  useEffect(() => {
+    if (deviceStatus === "disconnected") {
+      setSwitches((prev) => prev.map((sw) => ({ ...sw, value: false })));
+      // Call backend to turn all switches off
+      const token = localStorage.getItem("token");
+      (async () => {
+        await axios
+          .post(
+            `${backendUrl}/api/switch/all-off`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .catch(() => {
+            toast.error("Failed to update backend switches");
+          });
+      })();
+    }
+  }, [deviceStatus, backendUrl]);
+
   const handleSwitchChange = async (id, newValue) => {
+    if (deviceStatus === "disconnected") {
+      toast.warning("Device is offline");
+      return;
+    }
+
     setSwitches((prev) =>
       prev.map((sw) => (sw.id === id ? { ...sw, value: newValue } : sw))
     );
@@ -65,13 +93,13 @@ const Home = () => {
     <div className="bg-[#1a1b20] rounded-2xl flex flex-col items-center py-7 px-2">
       <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-5xl">
         {[
-          { label: "Voltage", value: 250, max: 300 },
-          { label: "Watt", value: 12, max: 200 },
+          { label: "Voltage", value: 230, max: 300 },
+          { label: "Watt", value: 1380, max: 3000 },
           { label: "Ampere", value: 6, max: 10 },
         ].map((item, idx) => (
           <div
             key={idx}
-            className="bg-gradient-to-br from-[#23242a] to-[#2d2e36] rounded-xl shadow-xl p-6 flex flex-col items-center gap-4 border border-[#2e303d] w-full max-w-xs hover:scale-[1.02] transition-transform hover:shadow-green-500/20"
+            className="bg-gradient-to-br from-[#23242a] to-[#2d2e36] rounded-xl shadow-xl p-2 flex flex-col items-center border border-[#2e303d] hover:scale-[1.02] transition-transform hover:shadow-green-500/20"
           >
             <h2 className="text-lg font-semibold text-[#a78bfa] tracking-wide">
               {item.label}

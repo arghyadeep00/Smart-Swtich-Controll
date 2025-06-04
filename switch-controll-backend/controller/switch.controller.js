@@ -30,7 +30,6 @@ mqttServer.on("error", (err) => {
   console.error("MQTT connection error:", err);
 });
 
-
 mqttServer.on("message", (topic, message) => {
   if (topic === "device/status") {
     status = message.toString();
@@ -48,7 +47,9 @@ const switchControl = async (req, res) => {
 
   mqttServer.publish(id, newValue.toString(), async (err) => {
     if (err) {
-      return res.status(500).json({ success: false, message: "MQTT publish error" });
+      return res
+        .status(500)
+        .json({ success: false, message: "MQTT publish error" });
     }
 
     try {
@@ -88,7 +89,24 @@ const switchControl = async (req, res) => {
   });
 };
 
-// ✅ Get Daily Activity
+// device off time all switch data change to (off)
+const allSwitchOff = async (req, res) => {
+  try {
+    // Set all switches to off
+    await Switch.updateMany({}, { isActive: false });
+    await Activity.updateMany({ offTime: null }, { offTime: Date.now() });
+
+    res.json({
+      success: true,
+      message: "All switches turned off and activities updated",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to turn off switches" });
+  }
+};
+// Get Daily Activity
 const getMyActivity = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -163,7 +181,9 @@ const getSwitch = async (req, res) => {
   const userID = req.user._id;
 
   try {
-    const response = await Switch.find({ userId: userID }).sort({ switchId: 1 });
+    const response = await Switch.find({ userId: userID }).sort({
+      switchId: 1,
+    });
 
     res.status(200).json({
       success: true,
@@ -184,10 +204,7 @@ const editSwitch = async (req, res) => {
   const { category, switchId, switchName, watt } = req.body;
 
   try {
-    await Switch.findOneAndUpdate(
-      { switchId },
-      { switchName, watt, category }
-    );
+    await Switch.findOneAndUpdate({ switchId }, { switchName, watt, category });
 
     res.status(200).json({
       success: true,
@@ -229,4 +246,5 @@ export {
   editSwitch,
   deleteSwitch,
   getMyActivity,
+  allSwitchOff,
 };
