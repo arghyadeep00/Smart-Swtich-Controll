@@ -6,6 +6,7 @@ import {
   getMyActivity,
   getSwitch,
   switchControl,
+  allSwitchOff,
 } from "../controller/switch.controller.js";
 import authMiddleware from "../middleware/auth.js";
 
@@ -17,5 +18,5 @@ switchRouter.get("/switch/get-switches", authMiddleware, getSwitch);
 switchRouter.put("/switch/edit-switch", authMiddleware, editSwitch);
 switchRouter.delete("/switch/delete-switch/:id", authMiddleware, deleteSwitch);
 switchRouter.get("/switch/my-activity/:date", authMiddleware, getMyActivity);
-
+switchRouter.post("/switch/all-off", authMiddleware, allSwitchOff);
 export default switchRouter;
