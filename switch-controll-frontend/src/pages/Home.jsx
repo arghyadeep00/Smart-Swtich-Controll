@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import Gauge from "../components/Gauge";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { StoreContext } from "../context/StoreContext";
+import { StoreContext, deviceStatus } from "../context/StoreContext";
 
 const Home = () => {
   const { backendUrl } = useContext(StoreContext);
