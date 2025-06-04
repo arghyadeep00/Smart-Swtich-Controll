@@ -14,11 +14,7 @@ const server = http.createServer(app);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cors({
-    origin: "https://smart-switch-controll-1.onrender.com",
-  })
-);
+app.use(cors());
 conn();
 
 app.use("/api", switchRouter);
