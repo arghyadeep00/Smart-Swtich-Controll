@@ -6,7 +6,7 @@ export const StoreContext = createContext(null);
 export const StoreProvider = ({ children }) => {
   const [deviceStatus, setDeviceStatus] = useState(null);
   const values = {
-    backendUrl: "http://localhost:5000",
+    backendUrl: "https://smart-switch-controll.onrender.com",
    
     deviceStatus,
     setDeviceStatus,
