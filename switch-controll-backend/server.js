@@ -12,8 +12,7 @@ const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-   
-    origin: "https://smart-switch-controll-1.onrender.com",
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -22,8 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    
-    origin: "https://smart-switch-controll-1.onrender.com",
+    origin: "*",
   })
 );
 conn();

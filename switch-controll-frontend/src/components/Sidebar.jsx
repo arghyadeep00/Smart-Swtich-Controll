@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { IoHomeOutline } from "react-icons/io5";
-import { CiDatabase } from "react-icons/ci";
+import { FiDatabase } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import { IoSettingsOutline } from "react-icons/io5";
 import { NavLink } from "react-router-dom";
@@ -35,7 +35,7 @@ const Sidebar = () => {
               }`}
             >
               <div className="flex items-center gap-4 text-xl">
-                <CiDatabase />
+                <FiDatabase />
                 consumption
               </div>
             </li>
