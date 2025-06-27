@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
-import Gauge from "../components/Gauge";
 import axios from "axios";
+import io from "socket.io-client";
 import { toast } from "react-toastify";
 import { StoreContext } from "../context/StoreContext";
 
 const Home = () => {
   const { backendUrl, deviceStatus } = useContext(StoreContext);
   const [switches, setSwitches] = useState([]);
+  const [voltage, setVoltage] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -33,6 +34,17 @@ const Home = () => {
       window.location.reload();
       toast.error("unauthorized user");
     }
+  }, [backendUrl]);
+  // fetch current voltage
+
+  useEffect(() => {
+    const socket = io(backendUrl);
+    socket.on("voltageRate", (status) => {
+      setVoltage(status);
+    });
+    return () => {
+      socket.disconnect();
+    };
   }, [backendUrl]);
 
   useEffect(() => {
@@ -91,28 +103,9 @@ const Home = () => {
 
   return (
     <div className="bg-[#1a1b20] rounded-2xl flex flex-col items-center py-7 px-2">
-      <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-5xl">
-        {[
-          { label: "Voltage", value: 230, max: 300 },
-          { label: "Watt", value: 1380, max: 3000 },
-          { label: "Ampere", value: 6, max: 10 },
-        ].map((item, idx) => (
-          <div
-            key={idx}
-            className="bg-gradient-to-br from-[#23242a] to-[#2d2e36] rounded-xl shadow-xl p-2 flex flex-col items-center border border-[#2e303d] hover:scale-[1.02] transition-transform hover:shadow-green-500/20"
-          >
-            <h2 className="text-lg font-semibold text-[#a78bfa] tracking-wide">
-              {item.label}
-            </h2>
-            <div className="w-36 h-36">
-              <Gauge value={item.value} valueMax={item.max} />
-            </div>
-          </div>
-        ))}
-      </div>
-
+      <div>{`Voltage: ${voltage}`}</div>
       {/* Switches Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl">
+      <div className="grid grid-cols-1 mt-10 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl">
         {switches.map((sw) => (
           <div
             key={sw.id}

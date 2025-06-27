@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+#include <EmonLib.h>
 
 // WiFi credentials
 const char* ssid = "************";
@@ -17,9 +18,11 @@ const char* mqtt_pass = "********************";
 #define LED_PIN1 D5
 #define LED_PIN2 D6
 #define LED_PIN3 D7
+#define VOLTAGE_OUTPUT A0
 
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
+EnergyMonitor emon;
 
 void setup_wifi() {
   delay(10);
@@ -58,29 +61,25 @@ void reconnect() {
 
     String clientId = "ESP8266Client-" + String(random(0xffff), HEX);
 
-    // Connect with LWT
     if (client.connect(
           clientId.c_str(),
           mqtt_user,
           mqtt_pass,
-          "device/status",   // LWT topic
-          1,                 // QoS
-          true,              // Retain
-          "disconnected"     // LWT message
+          "device/status",
+          1,
+          true,
+          "disconnected"
         )) {
       Serial.println(" connected");
 
-      // Send initial online status
       client.publish("device/status", "connected", true);
-
-      // Subscribe to topics
       client.subscribe("switch1");
       client.subscribe("switch2");
       client.subscribe("switch3");
     } else {
       Serial.print(" failed, rc=");
       Serial.println(client.state());
-      delay(5000);  // Wait and retry
+      delay(5000);
     }
   }
 }
@@ -88,25 +87,24 @@ void reconnect() {
 void setup() {
   Serial.begin(115200);
 
-  // Pin Modes
   pinMode(WIFI_SIGNAL_LED, OUTPUT);
   pinMode(LED_PIN1, OUTPUT);
   pinMode(LED_PIN2, OUTPUT);
   pinMode(LED_PIN3, OUTPUT);
 
-  // LEDs OFF initially
   digitalWrite(LED_PIN1, HIGH);
   digitalWrite(LED_PIN2, HIGH);
   digitalWrite(LED_PIN3, HIGH);
-  digitalWrite(WIFI_SIGNAL_LED, HIGH);  // OFF (active LOW)
+  digitalWrite(WIFI_SIGNAL_LED, HIGH);
 
   setup_wifi();
 
-  // Accept all certificates (not secure - for testing HiveMQ Cloud)
   espClient.setInsecure();
-
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+
+  // Initialize voltage sensor
+  emon.voltage(VOLTAGE_OUTPUT, 230.0, 1.7);  // Calibrate as needed
 }
 
 void loop() {
@@ -114,4 +112,21 @@ void loop() {
     reconnect();
   }
   client.loop();
+
+  // Read voltage and publish every 2 seconds
+  static unsigned long lastMillis = 0;
+  if (millis() - lastMillis > 2000) {
+    lastMillis = millis();
+
+    emon.calcVI(20, 2000);
+    float voltage = emon.Vrms;
+
+    Serial.print("AC Voltage: ");
+    Serial.println(voltage);
+
+    char voltageMsg[10];
+    dtostrf(voltage, 4, 2, voltageMsg);
+
+    client.publish("sensor/voltage", voltageMsg);
+  }
 }

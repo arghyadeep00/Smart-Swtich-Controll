@@ -36,6 +36,11 @@ mqttServer.on("message", (topic, message) => {
     console.log("Received status from device:", status);
     io.emit("deviceStatus", status);
   }
+  if (topic==="sensor/voltage"){
+    let voltageRate = message.toString();
+    console.log("voltage is", voltageRate);
+    io.emit("voltageRate",voltageRate);
+  }
 });
 
 const switchControl = async (req, res) => {
