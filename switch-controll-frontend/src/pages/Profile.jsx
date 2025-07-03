@@ -148,7 +148,7 @@ const Profile = () => {
               <span className="font-semibold text-white">Username:</span>{" "}
               <input
                 type="text"
-                name="userName"
+                name="username"
                 disabled={!isEdit}
                 className={`ml-4 bg-transparent text-white focus:outline-none ${
                   isEdit
@@ -163,7 +163,7 @@ const Profile = () => {
               <span className="font-semibold text-white">Password:</span>{" "}
               <input
                 type="text"
-                name="mqtPassword"
+                name="mqtpassword"
                 disabled={!isEdit}
                 className={`ml-4 bg-transparent text-white focus:outline-none ${
                   isEdit

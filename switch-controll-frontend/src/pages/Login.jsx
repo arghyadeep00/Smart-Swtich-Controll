@@ -7,73 +7,167 @@ import { useContext } from "react";
 import { StoreContext } from "../context/StoreContext";
 
 const Login = () => {
-  const {backendUrl}=useContext(StoreContext)
-  const [data, setData] = useState({
+  const { backendUrl } = useContext(StoreContext);
+  const [switchPage, setSwitchPage] = useState(true);
+  // for login
+  const [loginData, setloginData] = useState({
     email: "",
     password: "",
   });
-  const handleOnChange = async (e) => {
+  const loginHandleOnChange = async (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    setData((prevItem) => ({ ...prevItem, [name]: value }));
+    setloginData((prevItem) => ({ ...prevItem, [name]: value }));
   };
-  const handleOnSubmit = async (e) => {
+  const handleOnSubmitLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${backendUrl}/api/user/login`,
-        data
-      );
+      const response = await axios.post(`${backendUrl}/api/user/login`, loginData);
       if (response.data.success) {
         toast.success(response.data.message);
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("userName", response.data.userName);
         window.location.reload();
       }
+      console.log(response)
     } catch (error) {
+      console.log(error)
       toast.error("Invalid user id or password");
-      console.log(error);
     }
+  };
+  // for sign up
+  const [signupData, setSignupData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
+  const signUpHandleOnChange = async (e) => {
+    const { name, value } = e.target;
+    setSignupData((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleOnSubmitSignUp = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/user/sign_up`,
+        signupData
+      );
+      if (response) {
+        toast.success(response.data.message);
+        toast.success("Go to login page and login");
+      }
+    } catch (error) {}
   };
   return (
     <div className="w-full h-[100vh] flex justify-center items-center">
-      <StyledWrapper>
-        <div className="form-container">
-          <p className="title">Login</p>
-          <form className="form" onSubmit={handleOnSubmit}>
-            <div className="input-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                name="email"
-                required
-                id="email"
-                value={data.email}
-                placeholder="Email"
-                onChange={handleOnChange}
-              />
-            </div>
-            <div className="input-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                name="password"
-                id="password"
-                value={data.password}
-                onChange={handleOnChange}
-                required
-                placeholder="Password"
-              />
-              <div className="forgot">
-                <a rel="noopener noreferrer" href="#">
-                  Forgot Password ?
-                </a>
+      {switchPage ? (
+        <StyledWrapper>
+          <div className="form-container">
+            <p className="title">Login</p>
+            <form className="form" onSubmit={handleOnSubmitLogin}>
+              <div className="input-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  id="email"
+                  value={loginData.email}
+                  placeholder="Email"
+                  onChange={loginHandleOnChange}
+                />
               </div>
-            </div>
-            <button className="sign">Sign in</button>
-          </form>
-        </div>
-      </StyledWrapper>
+              <div className="input-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  value={loginData.password}
+                  onChange={loginHandleOnChange}
+                  required
+                  placeholder="Password"
+                />
+                <div className="switch">
+                  <button
+                    className="cursor-pointer"
+                    onClick={(e) => setSwitchPage((prev) => !prev)}
+                  >
+                    Create new account ?
+                  </button>
+                </div>
+              </div>
+              <button className="sign">Sign in</button>
+            </form>
+          </div>
+        </StyledWrapper>
+      ) : (
+        <StyledWrapper>
+          <div className="form-container">
+            <p className="title">Sign Up</p>
+            <form className="form" onSubmit={handleOnSubmitSignUp}>
+              <div className="input-group">
+                <label htmlFor="name">User Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  id="name"
+                  value={signupData.name}
+                  placeholder="Enter user name"
+                  onChange={signUpHandleOnChange}
+                />
+              </div>
+              <div className="input-group">
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  id="email"
+                  value={signupData.email}
+                  placeholder="Enter email address"
+                  onChange={signUpHandleOnChange}
+                />
+              </div>
+              <div className="input-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="text"
+                  name="phone"
+                  required
+                  id="phone"
+                  value={signupData.phone}
+                  placeholder="Enter phone number"
+                  onChange={signUpHandleOnChange}
+                />
+              </div>
+              <div className="input-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  value={signupData.password}
+                  onChange={signUpHandleOnChange}
+                  required
+                  placeholder="Password"
+                />
+                <div className="switch">
+                  <button
+                    className="cursor-pointer"
+                    onClick={(e) => setSwitchPage((prev) => !prev)}
+                  >
+                    Login your account ?
+                  </button>
+                </div>
+              </div>
+              <button className="sign">Sign Up</button>
+            </form>
+          </div>
+        </StyledWrapper>
+      )}
     </div>
   );
 };
@@ -124,25 +218,13 @@ const StyledWrapper = styled.div`
     border-color: rgba(167, 139, 250);
   }
 
-  .forgot {
+  .switch {
     display: flex;
     justify-content: flex-end;
-    font-size: 0.75rem;
+    font-size: 1rem;
     line-height: 1rem;
     color: rgba(156, 163, 175, 1);
-    margin: 8px 0 14px 0;
-  }
-
-  .forgot a,
-  .signup a {
-    color: rgba(243, 244, 246, 1);
-    text-decoration: none;
-    font-size: 14px;
-  }
-
-  .forgot a:hover,
-  .signup a:hover {
-    text-decoration: underline rgba(167, 139, 250, 1);
+    margin: 20px 10px 20px 0px;
   }
 
   .sign {
